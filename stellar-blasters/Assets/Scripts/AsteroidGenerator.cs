@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class AsteroidGenerator : MonoBehaviour
 {
-    public float spawnRange;
-    public float amountToSpawn = 800;
-    private Vector3 spawnPoint;
-    [SerializeField]GameObject asteroid;
-    public float startSafeRange;
-    private List<GameObject> objectsToPlace = new List<GameObject>();
+    public float spawnRange;                // The radius of the spherical area in which asteroids can spawn.
+    public float amountToSpawn = 800;       // The base number of asteroids to spawn, which increases based on difficulty.
+    private Vector3 spawnPoint;             // A temporary variable used to store the calculated position for each asteroid.
+    [SerializeField]GameObject asteroid;    // Reference to the asteroid prefab that will be instantiated.
+    public float startSafeRange;            // Defines a "safe zone" around the player where no asteroids will spawn.
+    private List<GameObject> objectsToPlace = new List<GameObject>();  // A list to keep track of all instantiated asteroids.
 
     void OnEnable()
     {
@@ -35,11 +35,12 @@ public class AsteroidGenerator : MonoBehaviour
 
     void SpawnAsteroids(string mode, string difficulty)
     {
-        if(difficulty.Equals("Easy"))
+        // This method is triggered when the game starts. It adjusts the amountToSpawn based on the selected difficulty.
+        if (difficulty.Equals("Easy"))
         {
             amountToSpawn = 800;
         }
-        else if(difficulty.Equals("Medium"))
+        else if (difficulty.Equals("Medium"))
         {
             amountToSpawn *= 3;
         }
@@ -50,13 +51,16 @@ public class AsteroidGenerator : MonoBehaviour
 
         for (int i = 0; i < amountToSpawn; i++) 
         {
-            PickSpawnPoint();
+            PickSpawnPoint();  // to calculate a random position within a sphere.
 
-            //pick new spawn point if too close to player start
+            // pick new spawn point if too close to player start
             while (Vector3.Distance(spawnPoint, Vector3.zero) < startSafeRange)
             {
                 PickSpawnPoint();
             }
+
+            // It instantiates the asteroid at that location with a random rotation and stores it in the objectsToPlace list.
+            // The asteroid’s parent is set to the generator for better hierarchy management in Unity.
 
             objectsToPlace.Add(Instantiate(asteroid, spawnPoint, Quaternion.Euler(Random.Range(0f,360f), Random.Range(0f, 360f), Random.Range(0f, 360f))));
             objectsToPlace[i].transform.parent = this.transform;
@@ -74,10 +78,11 @@ public class AsteroidGenerator : MonoBehaviour
 
         if(spawnPoint.magnitude > 1)
         {
+            // If the point is outside the unit sphere, normalize it to bring it back to the edge of the sphere.
             spawnPoint.Normalize();
         }
 
-        spawnPoint *= spawnRange;
+        spawnPoint *= spawnRange; // Scales the normalized vector to fit within the desired spawnRange.
     }
 }
 
